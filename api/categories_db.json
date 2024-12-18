@@ -1,0 +1,22 @@
+[
+  {
+    "id": "dd269763-6309-4fec-b33d-d7d8b6a7787b",
+    "name": "chancellery",
+    "description": "zxcvbnm"
+  },
+  {
+    "id": "8c41fdc7-5c4e-47e8-b82c-4611ee177727",
+    "name": "test",
+    "description": "test"
+  },
+  {
+    "id": "4fbd20d5-eaab-4213-a675-aa85c9c4ddc7",
+    "name": "test1",
+    "description": "test1"
+  },
+  {
+    "id": "8e0915bb-b559-4054-a540-189e2901be3d",
+    "name": "test2",
+    "description": "test2"
+  }
+]
