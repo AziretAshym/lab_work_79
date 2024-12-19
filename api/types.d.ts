@@ -14,3 +14,15 @@ export interface Location {
 }
 
 export type LocationWithoutId = Omit<Location, "id">;
+
+export interface Item {
+    id: string;
+    categoryId: string;
+    locationId: string;
+    name: string;
+    description?: string;
+    image: string | null;
+    addedDate: string;
+}
+
+export type ItemWithoutId = Omit<Item, "id" | "addedDate">;

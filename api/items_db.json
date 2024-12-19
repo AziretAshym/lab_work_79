@@ -1,0 +1,29 @@
+[
+  {
+    "id": "9537a105-4d88-411f-ba95-5f5f2d078bf1",
+    "categoryId": "dd269763-6309-4fec-b33d-d7d8b6a7787b",
+    "locationId": "7e54153e-3d06-4e22-b5d6-47ffe80f6b91",
+    "name": "Printer",
+    "description": "QWERTY",
+    "image": "images/images79eb96af-64d2-4398-9e02-153266be5b7f.jpg",
+    "addedDate": "2024-12-19T14:38:36.512Z"
+  },
+  {
+    "id": "26d76694-b2ce-481d-88aa-b22e17089791",
+    "categoryId": "dd269763-6309-4fec-b33d-d7d8b6a7787b",
+    "locationId": "7e54153e-3d06-4e22-b5d6-47ffe80f6b91",
+    "name": "Computer",
+    "description": "test",
+    "image": "images/imagesbc8fc871-9167-4ce2-b88f-68f5f4c8f896.jpg",
+    "addedDate": "2024-12-19T14:53:54.570Z"
+  },
+  {
+    "id": "6d3817c2-030e-48b9-9de6-b7153f841d3f",
+    "categoryId": "4fbd20d5-eaab-4213-a675-aa85c9c4ddc7",
+    "locationId": "895fc127-9a79-493c-b3cf-46c79260eabc",
+    "name": "scaner",
+    "description": "desc...",
+    "image": "images/imagesfbdddfab-4c9c-485a-81bf-bd3e312d889a.jpg",
+    "addedDate": "2024-12-19T15:21:08.798Z"
+  }
+]
