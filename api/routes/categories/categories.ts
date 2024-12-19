@@ -38,7 +38,7 @@ categoryRouter.post('/', async (req, res) => {
 
 categoryRouter.delete('/:id', async (req, res) => {
     const { id } = req.params;
-    const success = await categories_fileDb.deleteCategoryById(id);
+    const success = await categories_fileDb.deleteCategory(id);
 
     if (!success) {
         res.status(404).send({ error: "Category not found" });

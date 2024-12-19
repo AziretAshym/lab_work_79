@@ -1,11 +1,11 @@
 import { promises as fs } from "fs";
-import { Category, CategoryWithoutId } from "./types";
+import { Location, LocationWithoutId } from "./types";
 import crypto from "crypto";
 
-const fileName = "categories_db.json";
-let data: Category[] = [];
+const fileName = "locations_db.json";
+let data: Location[] = [];
 
-const categories_fileDb = {
+const locations_fileDb = {
     async init() {
         try {
             await fs.access(fileName);
@@ -21,23 +21,23 @@ const categories_fileDb = {
         }
     },
 
-    getCategories(): Category[] {
+    getLocations(): Location[] {
         return data;
     },
 
-    getCategoryById(id: string): Category | undefined {
+    getLocationById(id: string): Location | undefined {
         return data.find(category => category.id === id);
     },
 
-    async addCategory(msg: CategoryWithoutId): Promise<Category> {
+    async addLocation(msg: LocationWithoutId): Promise<Location> {
         const id = crypto.randomUUID();
-        const category: Category = { id, ...msg };
+        const category: Location = { id, ...msg };
         data.push(category);
         await this.save();
         return category;
     },
 
-    async deleteCategory(id: string): Promise<boolean> {
+    async deleteLocation(id: string): Promise<boolean> {
         const index = data.findIndex(category => category.id === id);
         if (index === -1) return false;
 
@@ -55,4 +55,4 @@ const categories_fileDb = {
     }
 };
 
-export default categories_fileDb;
+export default locations_fileDb;
