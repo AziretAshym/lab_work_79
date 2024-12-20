@@ -1,71 +1,107 @@
 import express from "express";
-import { ItemWithoutId } from "../../types";
-import items_fileDb from "../../items_fileDb";
-import categories_fileDb from "../../categories_fileDb";
-import locations_fileDb from "../../locations_fileDb";
-import { imagesUpload } from "../../multer";
+import {Category, Item, ItemWithoutId} from "../../types";
+import {imagesUpload} from "../../multer";
+import mysqldb from "../../mysqldb";
+import {ResultSetHeader} from "mysql2";
 
 const itemRouter = express.Router();
 
-itemRouter.get("/", (_req, res) => {
-    const items = items_fileDb.getItems();
+itemRouter.get("/", async (_req, res) => {
+    const connection = await mysqldb.getConnection();
+    const [result] = await connection.query("SELECT * FROM items");
+    const items = result as Item[];
+
     res.send(items);
 });
 
-itemRouter.get("/:id", (req, res) => {
-    const { id } = req.params;
-    const item = items_fileDb.getItemById(id);
+itemRouter.get("/:id", async (req, res) => {
+    const id = req.params.id;
+    const connection = await mysqldb.getConnection();
+    const [result] = await connection.query("SELECT * FROM items WHERE id = ?", [id]);
 
-    if (!item) {
-        res.status(404).send({ error: "Item not found" });
-        return;
+    const item = result as Item[];
+
+    if (item.length === 0) {
+        res.status(404).send({ error: "Not found" });
+    } else {
+        res.send(item[0])
     }
-
-    res.send(item);
 });
 
-itemRouter.post("/", imagesUpload.single('image'), async (req, res) => {
-    const { categoryId, locationId, name, description } = req.body;
+itemRouter.post("/", imagesUpload.single("image"), async (req, res) => {
+    try {
+        if (!req.body.categoryId || !req.body.locationId || !req.body.title) {
+            res.status(400).send("Category ID, Location ID, and Title cannot be empty.");
+            return;
+        }
 
-    if (!categoryId || !locationId || !name) {
-        res.status(404).send("Category ID, Location ID, and Name can not be empty.");
-        return;
+        const connection = await mysqldb.getConnection();
+
+        const [categoryResult] = await connection.query(
+            "SELECT id FROM categories WHERE id = ?",
+            [req.body.categoryId]
+        );
+        if ((categoryResult as Category[]).length === 0) {
+            res.status(404).send({ error: `Category with ID ${req.body.categoryId} not found.` });
+            return;
+        }
+
+        const [locationResult] = await connection.query(
+            "SELECT id FROM locations WHERE id = ?",
+            [req.body.locationId]
+        );
+        if ((locationResult as Location[]).length === 0) {
+            res.status(404).send({ error: `Location with ID ${req.body.locationId} not found.` });
+            return;
+        }
+
+        const item: ItemWithoutId = {
+            category_id: Number(req.body.categoryId),
+            location_id: Number(req.body.locationId),
+            title: req.body.title,
+            description: req.body.description || null,
+            image: req.file ? "images/" + req.file.filename : null,
+        };
+
+        const [result] = await connection.query(
+            "INSERT INTO items (category_id, location_id, title, description, image) VALUES (?, ?, ?, ?, ?)",
+            [item.category_id, item.location_id, item.title, item.description, item.image]
+        );
+
+        const resultHeader = result as ResultSetHeader;
+        const [resultCreatedItem] = await connection.query("SELECT * FROM items WHERE id = ?", [resultHeader.insertId]);
+        const createdItem = resultCreatedItem as Item[];
+
+        if (createdItem.length === 0) {
+            res.status(404).send({ error: "Failed to fetch the newly created item." });
+        } else {
+            res.status(201).send(createdItem[0]);
+        }
+    } catch (e) {
+        console.error(e);
     }
-
-    const categoryExists = categories_fileDb.getCategoryById(categoryId);
-    if (!categoryExists) {
-        res.status(404).send({ error: `Can not find category with id = ${categoryId}.` });
-        return;
-    }
-
-    const locationExists = locations_fileDb.getLocationById(locationId);
-    if (!locationExists) {
-        res.status(404).send({ error: `Can not find location with id = ${locationId}` });
-        return;
-    }
-
-    const item: ItemWithoutId = {
-        categoryId,
-        locationId,
-        name,
-        description,
-        image: req.file ? "images/" + req.file.filename : null, // Путь к изображению
-    };
-
-    const savedItem = await items_fileDb.addItem(item);
-    res.send(savedItem);
 });
+
+
 
 itemRouter.delete("/:id", async (req, res) => {
-    const { id } = req.params;
-    const success = await items_fileDb.deleteItem(id);
+    try {
+        const id = req.params.id;
+        const connection = await mysqldb.getConnection();
 
-    if (!success) {
-        res.status(404).send({ error: "Item not found" });
-        return;
+        const [result] = await connection.query("DELETE FROM items WHERE id = ?", [id]);
+
+        const resultHeader = result as ResultSetHeader;
+
+        if (resultHeader.affectedRows === 0) {
+            res.status(404).send({ error: "Item not found" });
+        } else {
+            res.send({ message: "Item deleted successfully" });
+        }
+    } catch (e) {
+        console.error(e);
     }
-
-    res.send({ message: "Item deleted" });
 });
+
 
 export default itemRouter;
